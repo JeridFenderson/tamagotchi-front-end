@@ -1,11 +1,31 @@
-import React from 'react'
+import axios from 'axios'
+import React, { useEffect, useState } from 'react'
 import { Link, Route, Switch } from 'react-router-dom'
 
 export function App() {
+  const [tamagotchis, setTamagotchis] = useState({})
+  const [newTamagotchi, setNewTamagotchi] = useState('New Tamagotchi Name')
+
+  useEffect(async () => {
+    const response = await axios.get(
+      `https://jerids-tamagotchi-api.herokuapp.com/api/Pets`
+    )
+    setTamagotchis(response.data)
+  }, [newTamagotchi])
+
+  async function handleNewPet(event) {
+    event.preventDefault()
+    const response = await axios.post(
+      `https://jerids-tamagotchi-api.herokuapp.com/api/Pets`,
+
+      { name: newTamagotchi }
+    )
+    setNewTamagotchi('New Tamagotchi Name')
+  }
   return (
     <>
       <header>
-        <h1>Welcome to my SPA</h1>
+        <h1>Tamagotchi</h1>
         <nav>
           <ul>
             <li>
@@ -22,7 +42,43 @@ export function App() {
       </header>
       <Switch>
         <Route exact path="/">
-          Home
+          <main>
+            <ul>
+              {Object.keys(tamagotchis).map((tamagotchi, index) => (
+                <li key={index}>
+                  <figure>
+                    <h2>{tamagotchis[tamagotchi].name}</h2>
+                    <ul>
+                      <li>Birthday: {tamagotchis[tamagotchi].birthday}</li>
+                      <li>
+                        Happiness Level:{' '}
+                        {tamagotchis[tamagotchi].happinessLevel}
+                      </li>
+                      <li>
+                        Hunger Level: {tamagotchis[tamagotchi].hungerLevel}
+                      </li>
+                      <li>
+                        Is Alive:
+                        {tamagotchis[tamagotchi].isDead ? ' No' : ' Yes'}
+                      </li>
+                    </ul>
+                  </figure>
+                </li>
+              ))}
+              <li>
+                <figure>
+                  <h2>New Pet</h2>
+                  <form onSubmit={handleNewPet}>
+                    <input
+                      type="text"
+                      value={newTamagotchi}
+                      onChange={event => setNewTamagotchi(event.target.value)}
+                    />
+                  </form>
+                </figure>
+              </li>
+            </ul>
+          </main>
         </Route>
         <Route exact path="/1">
           Page 1
